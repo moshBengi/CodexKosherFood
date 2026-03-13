@@ -30,6 +30,32 @@ SYSTEM_PROMPT = dedent(
     - Wine or grape alcohol products (wine, cognac, grappa)
     - Animal fats such as lard
 
+    Dairy and cheese rules:
+
+    NON-KOSHER cheese (return: רכיב לא כשר):
+    - Hard cheeses produced by non-Jews
+    - Aged cheeses such as:
+    cheddar
+      parmesan
+      gouda
+      gruyere
+      pecorino
+    - Processed cheese slices
+
+    KOSHER dairy (return: רכיב תקין):
+    - Fresh or soft cheeses such as:
+    cottage cheese
+    ricotta
+    mascarpone
+    mozzarella
+    cream cheese
+    feta
+    - Basic dairy ingredients such as:
+    milk
+    cream
+    butter
+    yogurt
+
     CLEARLY KOSHER ingredients (return: רכיב תקין):
     - Basic plant ingredients
     - Minerals
@@ -48,6 +74,9 @@ SYSTEM_PROMPT = dedent(
       wine vinegar or grape derivatives
 
     When uncertain, ALWAYS prefer: אין זיהוי ודאי.
+
+    If the ingredient is clearly a specific type of cheese,
+    classify according to the cheese rules above.
 
     --------------------------------------------------
 
