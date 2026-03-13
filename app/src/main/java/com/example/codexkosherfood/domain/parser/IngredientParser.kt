@@ -1,12 +1,13 @@
 package com.example.codexkosherfood.domain.parser
 
+import com.example.codexkosherfood.domain.model.ParsedIngredient
 import com.example.codexkosherfood.domain.model.ParsedIngredients
 import java.util.Locale
 
 class IngredientParser {
     private val headers = listOf(
         "ingredients",
-        "ingrédients",
+        "ingrÃ©dients",
         "zutaten",
         "ingredientes",
         "ingredienti",
@@ -40,7 +41,7 @@ class IngredientParser {
         return ParsedIngredients(
             sourceText = normalizedSource,
             sectionText = cleanedSection,
-            items = splitIngredients(cleanedSection),
+            items = buildParsedIngredients(cleanedSection),
             header = detectHeader(normalizedSource),
         )
     }
@@ -86,6 +87,15 @@ class IngredientParser {
             .split(Regex("[,;\\u2022]"))
             .map { it.trim().trim('.') }
             .filter { it.isNotBlank() }
+    }
+
+    private fun buildParsedIngredients(section: String): List<ParsedIngredient> {
+        return splitIngredients(section).map { ingredient ->
+            ParsedIngredient(
+                originalName = ingredient,
+                normalizedName = normalizeIngredientName(ingredient),
+            )
+        }
     }
 
     private fun detectHeader(text: String): String? {

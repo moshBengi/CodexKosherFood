@@ -40,9 +40,12 @@ class ScanRepository(
     suspend fun reviewUncertainIngredients(
         analysis: AnalysisOutput,
     ): AiReviewBatchResult {
-        val requests = analysis.result.uncertainItems.map { assessment ->
+        val requests = analysis.result.uncertainItems
+            .distinctBy { assessment -> assessment.normalizedName }
+            .map { assessment ->
             AiReviewRequest(
-                ingredient = assessment.ingredient,
+                originalName = assessment.originalName,
+                normalizedName = assessment.normalizedName,
                 ingredientListText = analysis.parsedIngredients.sectionText,
                 currentReason = assessment.reason,
             )

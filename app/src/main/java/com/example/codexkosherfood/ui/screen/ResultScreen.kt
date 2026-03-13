@@ -190,9 +190,10 @@ private fun AssessmentCard(assessment: IngredientAssessment) {
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            Text(assessment.ingredient, style = MaterialTheme.typography.titleSmall)
+            Text(assessment.originalName, style = MaterialTheme.typography.titleSmall)
             Text("Status: ${statusLabel(assessment.status)}")
             Text("Reason: ${assessment.reason}")
+            Text("Normalized: ${assessment.normalizedName}")
             assessment.matchedKeyword?.let { Text("Matched by: $it") }
         }
     }
@@ -205,7 +206,7 @@ private fun AiReviewCard(review: AiIngredientReview) {
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            Text(review.ingredient, style = MaterialTheme.typography.titleSmall)
+            Text(review.originalName, style = MaterialTheme.typography.titleSmall)
             Text("Hebrew: ${review.hebrewTranslation}")
             Text("Normalized: ${review.normalizedName}")
             Text("AI Recommendation: ${statusLabel(review.recommendation)}")

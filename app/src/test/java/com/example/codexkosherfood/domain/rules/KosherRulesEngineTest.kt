@@ -1,8 +1,10 @@
 package com.example.codexkosherfood.domain.rules
 
 import com.example.codexkosherfood.domain.model.IngredientStatus
+import com.example.codexkosherfood.domain.model.ParsedIngredient
 import com.example.codexkosherfood.domain.model.ParsedIngredients
 import com.example.codexkosherfood.domain.model.Verdict
+import com.example.codexkosherfood.domain.parser.normalizeIngredientName
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -17,8 +19,8 @@ class KosherRulesEngineTest {
         val result = engine.analyze(parsed)
 
         assertEquals(Verdict.PROBLEM, result.verdict)
-        assertTrue(result.notKosherItems.any { it.ingredient == "pork broth" })
-        assertTrue(result.okItems.any { it.ingredient == "water" })
+        assertTrue(result.notKosherItems.any { it.originalName == "pork broth" })
+        assertTrue(result.okItems.any { it.originalName == "water" })
     }
 
     @Test
@@ -28,8 +30,8 @@ class KosherRulesEngineTest {
         val result = engine.analyze(parsed)
 
         assertEquals(Verdict.UNCERTAIN, result.verdict)
-        assertTrue(result.okItems.any { it.ingredient == "sugar" })
-        assertTrue(result.uncertainItems.any { it.ingredient == "e471" })
+        assertTrue(result.okItems.any { it.originalName == "sugar" })
+        assertTrue(result.uncertainItems.any { it.originalName == "e471" })
     }
 
     @Test
@@ -39,7 +41,7 @@ class KosherRulesEngineTest {
         val result = engine.analyze(parsed)
 
         assertEquals(Verdict.UNCERTAIN, result.verdict)
-        assertTrue(result.uncertainItems.any { it.ingredient == "milk" })
+        assertTrue(result.uncertainItems.any { it.originalName == "milk" })
     }
 
     @Test
@@ -49,7 +51,7 @@ class KosherRulesEngineTest {
         val result = engine.analyze(parsed)
 
         assertEquals(Verdict.UNCERTAIN, result.verdict)
-        assertTrue(result.uncertainItems.any { it.ingredient == "xanthotril" })
+        assertTrue(result.uncertainItems.any { it.originalName == "xanthotril" })
         assertTrue(result.uncertainItems.any { it.reason.contains("not recognized", ignoreCase = true) })
     }
 
@@ -60,8 +62,8 @@ class KosherRulesEngineTest {
         val result = engine.analyze(parsed)
 
         assertEquals(Verdict.UNCERTAIN, result.verdict)
-        assertTrue(result.okItems.any { it.ingredient == "wheat flour" })
-        assertTrue(result.uncertainItems.any { it.ingredient == "vegetable shortening" })
+        assertTrue(result.okItems.any { it.originalName == "wheat flour" })
+        assertTrue(result.uncertainItems.any { it.originalName == "vegetable shortening" })
         assertTrue(result.uncertainItems.any { it.reason.contains("not recognized", ignoreCase = true) })
     }
 
@@ -76,12 +78,28 @@ class KosherRulesEngineTest {
         assertTrue(result.assessments.all { it.status == IngredientStatus.OK })
     }
 
+    @Test
+    fun `uses normalized names for ambiguous matching`() {
+        val parsed = parsedIngredients("Ingredients: Mono & Diglycerides, Artificial Colour")
+
+        val result = engine.analyze(parsed)
+
+        assertTrue(result.uncertainItems.any { it.normalizedName == "mono and diglycerides" })
+        assertTrue(result.uncertainItems.any { it.originalName == "Artificial Colour" })
+    }
+
     private fun parsedIngredients(section: String): ParsedIngredients {
         val cleanSection = section.substringAfter(':').trim()
         return ParsedIngredients(
             sourceText = section,
             sectionText = cleanSection,
-            items = cleanSection.split(",").map { it.trim() },
+            items = cleanSection.split(",").map { item ->
+                val original = item.trim()
+                ParsedIngredient(
+                    originalName = original,
+                    normalizedName = normalizeIngredientName(original),
+                )
+            },
             header = "ingredients",
         )
     }

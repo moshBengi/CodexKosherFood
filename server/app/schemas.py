@@ -7,7 +7,8 @@ IngredientStatusLiteral = Literal["OK", "NOT_KOSHER", "UNCERTAIN"]
 
 
 class UncertainIngredientInput(BaseModel):
-    ingredient: str = Field(min_length=1)
+    original_name: str = Field(min_length=1)
+    normalized_name: str = Field(min_length=1)
     current_reason: str = Field(min_length=1)
 
 
@@ -17,9 +18,9 @@ class AiReviewRequestPayload(BaseModel):
 
 
 class AiIngredientReviewPayload(BaseModel):
-    ingredient: str
-    hebrew_translation: str
+    original_name: str
     normalized_name: str
+    hebrew_translation: str
     recommendation: IngredientStatusLiteral
     reason: str
     confidence: float | None = Field(default=None, ge=0.0, le=1.0)

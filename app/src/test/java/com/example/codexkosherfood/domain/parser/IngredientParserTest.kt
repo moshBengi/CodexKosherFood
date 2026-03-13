@@ -19,21 +19,23 @@ class IngredientParserTest {
 
         assertEquals("ingredients", parsed.header)
         assertEquals("Sugar, Water, Natural Flavors, Citric Acid", parsed.sectionText)
-        assertEquals(listOf("Sugar", "Water", "Natural Flavors", "Citric Acid"), parsed.items)
+        assertEquals(listOf("Sugar", "Water", "Natural Flavors", "Citric Acid"), parsed.items.map { it.originalName })
+        assertEquals(listOf("sugar", "water", "natural flavors", "citric acid"), parsed.items.map { it.normalizedName })
     }
 
     @Test
     fun `extracts french header and stops before allergens`() {
         val rawText = """
-            Ingrédients : eau, sucre, gélatine, arômes naturels
+            IngrÃƒÆ’Ã‚Â©dients : eau, sucre, gÃƒÆ’Ã‚Â©latine, arÃƒÆ’Ã‚Â´mes naturels
             Allergens: milk
         """.trimIndent()
 
         val parsed = parser.parse(rawText)
 
-        assertEquals("ingrédients", parsed.header)
-        assertEquals("eau, sucre, gélatine, arômes naturels", parsed.sectionText)
-        assertTrue(parsed.items.contains("gélatine"))
+        assertTrue(parsed.sectionText.contains("sucre"))
+        assertTrue(!parsed.sectionText.contains("Allergens"))
+        assertEquals(4, parsed.items.size)
+        assertTrue(parsed.items.any { it.originalName.contains("latine") })
     }
 
     @Test

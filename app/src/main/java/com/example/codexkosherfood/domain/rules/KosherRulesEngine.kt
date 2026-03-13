@@ -2,9 +2,11 @@ package com.example.codexkosherfood.domain.rules
 
 import com.example.codexkosherfood.domain.model.IngredientAssessment
 import com.example.codexkosherfood.domain.model.IngredientStatus
+import com.example.codexkosherfood.domain.model.ParsedIngredient
 import com.example.codexkosherfood.domain.model.KosherResult
 import com.example.codexkosherfood.domain.model.ParsedIngredients
 import com.example.codexkosherfood.domain.model.Verdict
+import com.example.codexkosherfood.domain.parser.normalizeIngredientName
 import java.util.Locale
 
 class KosherRulesEngine {
@@ -92,7 +94,14 @@ class KosherRulesEngine {
     )
 
     fun analyze(parsedIngredients: ParsedIngredients): KosherResult {
-        val ingredients = parsedIngredients.items.ifEmpty { listOf(parsedIngredients.sectionText) }
+        val ingredients = parsedIngredients.items.ifEmpty {
+            listOf(
+                ParsedIngredient(
+                    originalName = parsedIngredients.sectionText,
+                    normalizedName = normalizeIngredientName(parsedIngredients.sectionText),
+                ),
+            )
+        }
         val assessments = ingredients.map(::assessIngredient)
 
         val verdict = when {
@@ -107,12 +116,11 @@ class KosherRulesEngine {
         )
     }
 
-    private fun assessIngredient(rawIngredient: String): IngredientAssessment {
-        val ingredient = rawIngredient.trim().trim('.')
-
+    private fun assessIngredient(ingredient: ParsedIngredient): IngredientAssessment {
         firstMatchingRule(ingredient, notKosherRules)?.let { matched ->
             return IngredientAssessment(
-                ingredient = ingredient,
+                originalName = ingredient.originalName,
+                normalizedName = ingredient.normalizedName,
                 status = IngredientStatus.NOT_KOSHER,
                 reason = matched.rule.reason,
                 matchedKeyword = matched.keyword,
@@ -121,7 +129,8 @@ class KosherRulesEngine {
 
         firstMatchingRule(ingredient, uncertainRules)?.let { matched ->
             return IngredientAssessment(
-                ingredient = ingredient,
+                originalName = ingredient.originalName,
+                normalizedName = ingredient.normalizedName,
                 status = matched.rule.status,
                 reason = matched.rule.reason,
                 matchedKeyword = matched.keyword,
@@ -130,7 +139,8 @@ class KosherRulesEngine {
 
         firstMatchingRule(ingredient, okRules)?.let { matched ->
             return IngredientAssessment(
-                ingredient = ingredient,
+                originalName = ingredient.originalName,
+                normalizedName = ingredient.normalizedName,
                 status = IngredientStatus.OK,
                 reason = matched.rule.reason,
                 matchedKeyword = matched.keyword,
@@ -138,7 +148,8 @@ class KosherRulesEngine {
         }
 
         return IngredientAssessment(
-            ingredient = ingredient,
+            originalName = ingredient.originalName,
+            normalizedName = ingredient.normalizedName,
             status = IngredientStatus.UNCERTAIN,
             reason = "Ingredient not recognized by current rules",
             matchedKeyword = null,
@@ -151,12 +162,12 @@ class KosherRulesEngine {
     )
 
     private fun firstMatchingRule(
-        ingredient: String,
+        ingredient: ParsedIngredient,
         rules: List<Rule>,
     ): MatchedRule? {
-        val normalized = ingredient.lowercase(Locale.ROOT)
+        val normalized = ingredient.normalizedName
         for (rule in rules) {
-            if (rule.skipWhen?.invoke(ingredient) == true) {
+            if (rule.skipWhen?.invoke(normalized) == true) {
                 continue
             }
             val keyword = rule.keywords.firstOrNull { candidate ->

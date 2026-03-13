@@ -7,8 +7,9 @@ enum class IngredientStatus {
 }
 
 data class IngredientAssessment(
-    val ingredient: String,
+    val originalName: String = "",
+    val normalizedName: String = "",
     val status: IngredientStatus,
-    val reason: String,
+    val reason: String = "",
     val matchedKeyword: String? = null,
 )

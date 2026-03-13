@@ -1,17 +1,18 @@
 package com.example.codexkosherfood.domain.model
 
 data class AiReviewRequest(
-    val ingredient: String,
-    val ingredientListText: String,
-    val currentReason: String,
+    val originalName: String = "",
+    val normalizedName: String = "",
+    val ingredientListText: String = "",
+    val currentReason: String = "",
 )
 
 data class AiIngredientReview(
-    val ingredient: String,
-    val hebrewTranslation: String,
-    val normalizedName: String,
+    val originalName: String = "",
+    val normalizedName: String = "",
+    val hebrewTranslation: String = "",
     val recommendation: IngredientStatus,
-    val reason: String,
+    val reason: String = "",
     val confidence: Double? = null,
 )
 
