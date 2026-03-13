@@ -3,7 +3,7 @@ from typing import Literal
 from pydantic import BaseModel, Field
 
 
-IngredientStatusLiteral = Literal["OK", "NOT_KOSHER", "UNCERTAIN"]
+Literal["רכיב תקין", "רכיב לא כשר", "אין זיהוי ודאי"]
 
 
 class UncertainIngredientInput(BaseModel):

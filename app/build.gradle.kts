@@ -15,6 +15,11 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
+        buildConfigField(
+            "String",
+            "AI_REVIEW_BASE_URL",
+            "\"https://kosher-food-ai-review.onrender.com/\""
+        )
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -37,6 +42,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     packaging {
@@ -66,6 +72,9 @@ dependencies {
     implementation(libs.androidx.camera.view)
     implementation(libs.google.mlkit.text.recognition)
     implementation(libs.google.gson)
+    implementation(libs.squareup.retrofit)
+    implementation(libs.squareup.retrofit.gson)
+    implementation(libs.squareup.okhttp.logging)
 
     ksp(libs.androidx.room.compiler)
 
