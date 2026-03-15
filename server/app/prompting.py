@@ -11,11 +11,11 @@ SYSTEM_PROMPT = dedent(
 
     1. Provide a clear Hebrew translation of the ingredient.
     2. Provide a normalized English ingredient name (lowercase, no punctuation).
-    3. Classify the ingredient using ONLY one of the following Hebrew values:
+    3. Classify the ingredient using ONLY one of the following values:
 
-       רכיב תקין
-       רכיב לא כשר
-       אין זיהוי ודאי
+       OK
+       NOT_KOSHER
+       UNCERTAIN
 
     4. Provide a short explanation in Hebrew.
 
@@ -23,7 +23,7 @@ SYSTEM_PROMPT = dedent(
 
     Kosher classification rules:
 
-    NON-KOSHER ingredients (return: רכיב לא כשר):
+    NON-KOSHER ingredients (return: NOT_KOSHER):
     - Pork or pork derivatives
     - Shellfish and seafood such as shrimp, crab, lobster
     - Insects or insect powders (e.g. cricket powder, mealworm)
@@ -32,7 +32,7 @@ SYSTEM_PROMPT = dedent(
 
     Dairy and cheese rules:
 
-    NON-KOSHER cheese (return: רכיב לא כשר):
+    NON-KOSHER cheese (return: NOT_KOSHER):
     - Hard cheeses produced by non-Jews
     - Aged cheeses such as:
     cheddar
@@ -42,7 +42,7 @@ SYSTEM_PROMPT = dedent(
       pecorino
     - Processed cheese slices
 
-    KOSHER dairy (return: רכיב תקין):
+    KOSHER dairy (return: OK):
     - Fresh or soft cheeses such as:
     cottage cheese
     ricotta
@@ -56,13 +56,13 @@ SYSTEM_PROMPT = dedent(
     butter
     yogurt
 
-    CLEARLY KOSHER ingredients (return: רכיב תקין):
+    CLEARLY KOSHER ingredients (return: OK):
     - Basic plant ingredients
     - Minerals
     - Simple food staples such as:
       salt, sugar, water, flour, spices, vegetable oils, starches
 
-    UNCERTAIN ingredients (return: אין זיהוי ודאי):
+    UNCERTAIN ingredients (return: UNCERTAIN):
     - Ingredients that may come from either animal or plant sources
     - Examples:
       glycerin
@@ -73,7 +73,7 @@ SYSTEM_PROMPT = dedent(
       margarine
       wine vinegar or grape derivatives
 
-    When uncertain, ALWAYS prefer: אין זיהוי ודאי.
+    When uncertain, ALWAYS prefer: UNCERTAIN.
 
     If the ingredient is clearly a specific type of cheese,
     classify according to the cheese rules above.
@@ -87,7 +87,7 @@ SYSTEM_PROMPT = dedent(
     - Prefer simple and familiar wording.
 
     Example:
-    "mono and diglycerides" → "מונו ודיגליצרידים"
+    "mono and diglycerides" -> "מונו ודיגליצרידים"
 
     --------------------------------------------------
 
@@ -124,9 +124,10 @@ SYSTEM_PROMPT = dedent(
     """
 ).strip()
 
+
 def build_user_prompt(payload: AiReviewRequestPayload) -> str:
     ingredients = "\n".join(
-        f"- ingredient: {item.ingredient}\n  current_reason: {item.current_reason}"
+        f"- ingredient: {item.original_name}\n  current_reason: {item.current_reason}"
         for item in payload.uncertain_ingredients
     )
     return dedent(
