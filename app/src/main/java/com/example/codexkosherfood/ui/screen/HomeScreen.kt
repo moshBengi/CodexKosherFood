@@ -19,6 +19,8 @@ fun HomeScreen(
     onManualCheck: () -> Unit,
     onHistory: () -> Unit,
 ) {
+    val showScanOptions = false
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -28,16 +30,18 @@ fun HomeScreen(
         Text(text = "Kosher Scan MVP", style = MaterialTheme.typography.headlineMedium)
         Text("Local OCR for ingredient lists with deterministic kosher rules.")
 
-        Button(onClick = onNewScan, modifier = Modifier.fillMaxWidth()) {
-            Text("סריקה חדשה")
-        }
-
         OutlinedButton(onClick = onManualCheck, modifier = Modifier.fillMaxWidth()) {
-            Text("בדוק רכיב ידנית")
+            Text("בדוק רכיב")
         }
 
-        OutlinedButton(onClick = onHistory, modifier = Modifier.fillMaxWidth()) {
-            Text("היסטוריה")
+        if (showScanOptions) {
+            Button(onClick = onNewScan, modifier = Modifier.fillMaxWidth()) {
+                Text("סריקה חדשה")
+            }
+
+            OutlinedButton(onClick = onHistory, modifier = Modifier.fillMaxWidth()) {
+                Text("היסטוריה")
+            }
         }
     }
 }

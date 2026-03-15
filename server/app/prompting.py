@@ -24,11 +24,32 @@ SYSTEM_PROMPT = dedent(
     Kosher classification rules:
 
     NON-KOSHER ingredients (return: NOT_KOSHER):
+      Animal ingredient rule:
+
+      If an ingredient clearly comes from an animal (meat, animal fat,
+      animal extract, or meat broth) and there is no kosher certification,
+      classify it as NOT_KOSHER.
+
+      Examples:
+      chicken
+      beef
+      turkey
+      duck
+      lamb
+      meat extract
+      chicken broth
+      beef broth
+      animal fat
+      tallow
     - Pork or pork derivatives
     - Shellfish and seafood such as shrimp, crab, lobster
     - Insects or insect powders (e.g. cricket powder, mealworm)
     - Wine or grape alcohol products (wine, cognac, grappa)
     - Animal fats such as lard
+    - gelatin
+    - animal rennet
+    - carmine (cochineal)
+    - shellac
 
     Dairy and cheese rules:
 
