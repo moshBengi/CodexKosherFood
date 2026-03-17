@@ -2,14 +2,16 @@ package com.example.codexkosherfood.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val SageGreen = Color(0xFF2E5E4E)
-val LeafGreen = Color(0xFF4C8C6A)
-val SoftSand = Color(0xFFF3E8D0)
-val WarmGray = Color(0xFF5D5D57)
-val AlertRed = Color(0xFFB23A2F)
-val WarningAmber = Color(0xFFC78A14)
-val SurfaceLight = Color(0xFFFCFAF5)
-val SurfaceDark = Color(0xFF1D211F)
-
-val MintDark = Color(0xFF9FD3B2)
-val SandDark = Color(0xFFD7C8A7)
+val AppBackground = Color(0xFFF3FBF6)
+val AppBackgroundAccent = Color(0xFFE6F5EA)
+val AppSurface = Color(0xFFFFFFFF)
+val AppSurfaceSoft = Color(0xFFF7FCF8)
+val AppPrimary = Color(0xFF1F8F52)
+val AppPrimaryDark = Color(0xFF14663A)
+val AppSecondary = Color(0xFFDFF4E5)
+val AppOutline = Color(0xFFD4E7D9)
+val AppText = Color(0xFF163227)
+val AppMuted = Color(0xFF587164)
+val AppWarning = Color(0xFFB88A1E)
+val AppError = Color(0xFFB84435)
+val AppOnPrimary = Color(0xFFFFFFFF)

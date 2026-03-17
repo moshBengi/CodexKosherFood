@@ -1,12 +1,9 @@
 package com.example.codexkosherfood.data
 
-import android.content.Context
-import androidx.room.Room
 import com.example.codexkosherfood.BuildConfig
 import com.example.codexkosherfood.data.ai.AiIngredientReviewer
 import com.example.codexkosherfood.data.ai.AiReviewApi
 import com.example.codexkosherfood.data.ai.HttpAiIngredientReviewer
-import com.example.codexkosherfood.data.local.KosherFoodDatabase
 import com.example.codexkosherfood.data.repository.ScanRepository
 import com.example.codexkosherfood.domain.parser.IngredientParser
 import com.example.codexkosherfood.domain.rules.KosherRulesEngine
@@ -17,19 +14,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-class AppContainer(context: Context) {
-    private val appContext = context.applicationContext
-
-    val database: KosherFoodDatabase by lazy {
-        Room.databaseBuilder(
-            appContext,
-            KosherFoodDatabase::class.java,
-            "kosher_food.db",
-        )
-            .fallbackToDestructiveMigration()
-            .build()
-    }
-
+class AppContainer {
     val ingredientParser: IngredientParser by lazy { IngredientParser() }
     val rulesEngine: KosherRulesEngine by lazy { KosherRulesEngine() }
     val gson: Gson by lazy { Gson() }
@@ -69,11 +54,9 @@ class AppContainer(context: Context) {
 
     val scanRepository: ScanRepository by lazy {
         ScanRepository(
-            dao = database.scanHistoryDao(),
             ingredientParser = ingredientParser,
             rulesEngine = rulesEngine,
             aiIngredientReviewer = aiIngredientReviewer,
-            gson = gson,
         )
     }
 }

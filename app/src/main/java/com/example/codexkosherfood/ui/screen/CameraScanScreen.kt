@@ -7,7 +7,6 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -37,6 +36,10 @@ import com.example.codexkosherfood.camera.CameraCaptureManager
 import com.example.codexkosherfood.camera.CameraSession
 import com.example.codexkosherfood.ocr.OcrScanResult
 import com.example.codexkosherfood.ocr.TextRecognizerManager
+import com.example.codexkosherfood.ui.components.AppHeroCard
+import com.example.codexkosherfood.ui.components.AppInsetPanel
+import com.example.codexkosherfood.ui.components.AppPage
+import com.example.codexkosherfood.ui.components.AppSectionCard
 import com.example.codexkosherfood.util.BitmapLoader
 import kotlinx.coroutines.launch
 
@@ -72,9 +75,7 @@ fun CameraScanScreen(
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
     ) { uri ->
-        if (uri == null) {
-            return@rememberLauncherForActivityResult
-        }
+        if (uri == null) return@rememberLauncherForActivityResult
         coroutineScope.launch {
             isBusy = true
             errorMessage = null
@@ -95,95 +96,122 @@ fun CameraScanScreen(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-    ) {
-        Text(text = "סריקת מרכיבים", style = MaterialTheme.typography.headlineSmall)
-        Text(text = "צילום מוצר או בחירה מהגלריה. ה-OCR פועל מקומית על המכשיר.")
+    AppPage(scrollable = true) {
+        AppHeroCard(
+            title = "סריקת רכיבים",
+            subtitle = "המסך נשאר במערכת, אבל כרגע הזרימה הראשית מכוונת לבדיקה ידנית.",
+        )
 
-        if (hasCameraPermission) {
-            AndroidView(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(420.dp),
-                factory = { previewView },
-            )
-        } else {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(240.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-            ) {
-                Text("נדרשת הרשאת מצלמה לסריקה ישירה")
-                Button(onClick = { permissionLauncher.launch(Manifest.permission.CAMERA) }) {
-                    Text("אשר מצלמה")
+        AppSectionCard(
+            modifier = Modifier.padding(top = 16.dp),
+        ) {
+            Text("תצוגת מצלמה", style = MaterialTheme.typography.titleLarge)
+
+            AppInsetPanel(modifier = Modifier.padding(top = 14.dp)) {
+                if (hasCameraPermission) {
+                    AndroidView(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(340.dp),
+                        factory = { previewView },
+                    )
+                } else {
+                    androidx.compose.foundation.layout.Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(220.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                        Text("נדרשת הרשאת מצלמה כדי להשתמש בסריקה.")
+                        Button(
+                            onClick = { permissionLauncher.launch(Manifest.permission.CAMERA) },
+                            modifier = Modifier.padding(top = 12.dp),
+                        ) {
+                            Text("אשר מצלמה")
+                        }
+                    }
                 }
             }
-        }
 
-        errorMessage?.let { Text(text = it, color = MaterialTheme.colorScheme.error) }
-
-        if (isBusy) {
-            CircularProgressIndicator()
-        }
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            Button(
-                onClick = {
-                    val session = cameraSession ?: return@Button
-                    coroutineScope.launch {
-                        isBusy = true
-                        errorMessage = null
-                        runCatching { captureManager.captureAndRecognize(session) }
-                            .onSuccess(onScanResult)
-                            .onFailure { errorMessage = it.message ?: "צילום נכשל" }
-                        isBusy = false
-                    }
-                },
-                enabled = cameraSession != null && !isBusy,
-                modifier = Modifier.weight(1f),
-            ) {
-                Text("צלם")
+            errorMessage?.let {
+                Text(
+                    text = it,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(top = 14.dp),
+                )
             }
 
-            OutlinedButton(
-                onClick = {
-                    flashEnabled = !flashEnabled
-                    cameraSession?.let { captureManager.setTorchEnabled(it, flashEnabled) }
-                },
-                enabled = cameraSession != null && !isBusy,
-                modifier = Modifier.weight(1f),
-            ) {
-                Text(if (flashEnabled) "פלאש כבוי" else "פלאש")
-            }
-        }
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            OutlinedButton(
-                onClick = {
-                    galleryLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                },
-                modifier = Modifier.weight(1f),
-            ) {
-                Text("בחר מהגלריה")
+            if (isBusy) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 14.dp),
+                    horizontalArrangement = Arrangement.Center,
+                ) {
+                    CircularProgressIndicator()
+                }
             }
 
-            OutlinedButton(
-                onClick = onBack,
-                modifier = Modifier.weight(1f),
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
             ) {
-                Text("חזרה")
+                Button(
+                    onClick = {
+                        val session = cameraSession ?: return@Button
+                        coroutineScope.launch {
+                            isBusy = true
+                            errorMessage = null
+                            runCatching { captureManager.captureAndRecognize(session) }
+                                .onSuccess(onScanResult)
+                                .onFailure { errorMessage = it.message ?: "הצילום נכשל" }
+                            isBusy = false
+                        }
+                    },
+                    enabled = cameraSession != null && !isBusy,
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Text("צלם")
+                }
+
+                OutlinedButton(
+                    onClick = {
+                        flashEnabled = !flashEnabled
+                        cameraSession?.let { captureManager.setTorchEnabled(it, flashEnabled) }
+                    },
+                    enabled = cameraSession != null && !isBusy,
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Text(if (flashEnabled) "כבה פלאש" else "הפעל פלאש")
+                }
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 10.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                OutlinedButton(
+                    onClick = {
+                        galleryLauncher.launch(
+                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
+                        )
+                    },
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Text("בחר מהגלריה")
+                }
+
+                OutlinedButton(
+                    onClick = onBack,
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Text("חזרה")
+                }
             }
         }
     }

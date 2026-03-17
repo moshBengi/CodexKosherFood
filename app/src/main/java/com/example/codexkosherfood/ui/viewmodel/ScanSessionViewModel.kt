@@ -20,7 +20,6 @@ data class ScanSessionUiState(
     val aiReviews: List<AiIngredientReview> = emptyList(),
     val isAiReviewLoading: Boolean = false,
     val aiReviewMessage: String? = null,
-    val savedScanId: Long? = null,
     val errorMessage: String? = null,
 )
 
@@ -52,7 +51,6 @@ class ScanSessionViewModel(
                 aiReviews = emptyList(),
                 isAiReviewLoading = false,
                 aiReviewMessage = null,
-                savedScanId = null,
                 errorMessage = null,
             )
         }
@@ -66,7 +64,6 @@ class ScanSessionViewModel(
                 aiReviews = emptyList(),
                 isAiReviewLoading = false,
                 aiReviewMessage = null,
-                savedScanId = null,
                 errorMessage = null,
             )
         }
@@ -85,7 +82,6 @@ class ScanSessionViewModel(
                 aiReviews = emptyList(),
                 isAiReviewLoading = false,
                 aiReviewMessage = null,
-                savedScanId = null,
                 errorMessage = null,
             )
         }
@@ -131,30 +127,4 @@ class ScanSessionViewModel(
         }
     }
 
-    fun save() {
-        val state = _uiState.value
-        val input = state.editedText.trim()
-        if (input.isBlank()) {
-            _uiState.update { it.copy(errorMessage = "No text to save") }
-            return
-        }
-
-        val analysis = state.analysisOutput ?: repository.analyzeText(input)
-
-        viewModelScope.launch {
-            val id = repository.saveScan(
-                recognizedText = state.recognizedText,
-                editedText = input,
-                analysis = analysis,
-                aiReviews = state.aiReviews,
-            )
-            _uiState.update {
-                it.copy(
-                    analysisOutput = analysis,
-                    savedScanId = id,
-                    errorMessage = null,
-                )
-            }
-        }
-    }
 }
