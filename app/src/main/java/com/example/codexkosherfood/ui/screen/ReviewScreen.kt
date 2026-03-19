@@ -1,5 +1,5 @@
 package com.example.codexkosherfood.ui.screen
-
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,7 +18,7 @@ import com.example.codexkosherfood.ui.components.AppHeroCard
 import com.example.codexkosherfood.ui.components.AppPage
 import com.example.codexkosherfood.ui.components.AppSectionCard
 import com.example.codexkosherfood.ui.viewmodel.ScanSessionUiState
-
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ReviewScreen(
     uiState: ScanSessionUiState,
